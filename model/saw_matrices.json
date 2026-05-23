@@ -1,0 +1,164 @@
+{
+  "K1_matrix": {
+    "Niacinamide": {
+      "Berminyak": 5,
+      "Kering": 3,
+      "Kombinasi": 5,
+      "Normal": 4
+    },
+    "Salicylic Acid": {
+      "Berminyak": 5,
+      "Kering": 1,
+      "Kombinasi": 4,
+      "Normal": 3
+    },
+    "Hyaluronic Acid": {
+      "Berminyak": 3,
+      "Kering": 5,
+      "Kombinasi": 4,
+      "Normal": 5
+    },
+    "Retinol": {
+      "Berminyak": 4,
+      "Kering": 2,
+      "Kombinasi": 4,
+      "Normal": 5
+    },
+    "Ceramide": {
+      "Berminyak": 2,
+      "Kering": 5,
+      "Kombinasi": 4,
+      "Normal": 3
+    },
+    "Vitamin C": {
+      "Berminyak": 3,
+      "Kering": 4,
+      "Kombinasi": 4,
+      "Normal": 5
+    },
+    "Tea Tree": {
+      "Berminyak": 5,
+      "Kering": 1,
+      "Kombinasi": 4,
+      "Normal": 3
+    },
+    "Bakuchiol": {
+      "Berminyak": 3,
+      "Kering": 4,
+      "Kombinasi": 4,
+      "Normal": 5
+    }
+  },
+  "K2_matrix": {
+    "Niacinamide": {
+      "Jerawat": 4,
+      "Dehidrasi": 3,
+      "Kusam": 5,
+      "Pori besar": 5,
+      "Flek hitam": 4,
+      "Iritasi": 3,
+      "Penuaan": 3,
+      "Bekas jerawat": 4
+    },
+    "Salicylic Acid": {
+      "Jerawat": 5,
+      "Dehidrasi": 1,
+      "Kusam": 3,
+      "Pori besar": 5,
+      "Flek hitam": 2,
+      "Iritasi": 1,
+      "Penuaan": 2,
+      "Bekas jerawat": 4
+    },
+    "Hyaluronic Acid": {
+      "Jerawat": 2,
+      "Dehidrasi": 5,
+      "Kusam": 3,
+      "Pori besar": 2,
+      "Flek hitam": 2,
+      "Iritasi": 4,
+      "Penuaan": 3,
+      "Bekas jerawat": 2
+    },
+    "Retinol": {
+      "Jerawat": 3,
+      "Dehidrasi": 2,
+      "Kusam": 5,
+      "Pori besar": 4,
+      "Flek hitam": 5,
+      "Iritasi": 1,
+      "Penuaan": 5,
+      "Bekas jerawat": 5
+    },
+    "Ceramide": {
+      "Jerawat": 2,
+      "Dehidrasi": 5,
+      "Kusam": 3,
+      "Pori besar": 2,
+      "Flek hitam": 2,
+      "Iritasi": 5,
+      "Penuaan": 3,
+      "Bekas jerawat": 2
+    },
+    "Vitamin C": {
+      "Jerawat": 2,
+      "Dehidrasi": 3,
+      "Kusam": 5,
+      "Pori besar": 3,
+      "Flek hitam": 5,
+      "Iritasi": 2,
+      "Penuaan": 4,
+      "Bekas jerawat": 3
+    },
+    "Tea Tree": {
+      "Jerawat": 5,
+      "Dehidrasi": 1,
+      "Kusam": 3,
+      "Pori besar": 4,
+      "Flek hitam": 2,
+      "Iritasi": 2,
+      "Penuaan": 2,
+      "Bekas jerawat": 3
+    },
+    "Bakuchiol": {
+      "Jerawat": 3,
+      "Dehidrasi": 3,
+      "Kusam": 4,
+      "Pori besar": 3,
+      "Flek hitam": 3,
+      "Iritasi": 4,
+      "Penuaan": 5,
+      "Bekas jerawat": 3
+    }
+  },
+  "ingredients": [
+    "Niacinamide",
+    "Salicylic Acid",
+    "Hyaluronic Acid",
+    "Retinol",
+    "Ceramide",
+    "Vitamin C",
+    "Tea Tree",
+    "Bakuchiol"
+  ],
+  "skin_types": [
+    "Berminyak",
+    "Kering",
+    "Kombinasi",
+    "Normal"
+  ],
+  "skin_problems": [
+    "Jerawat",
+    "Dehidrasi",
+    "Kusam",
+    "Pori besar",
+    "Flek hitam",
+    "Iritasi",
+    "Penuaan",
+    "Bekas jerawat"
+  ],
+  "weights": {
+    "K1": 0.6,
+    "K2": 0.4
+  }
+}

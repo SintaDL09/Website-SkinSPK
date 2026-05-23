@@ -1,0 +1,654 @@
+{% extends "base.html" %}
+{% block title %}Kuesioner Analisis Kulit — SkinSPK{% endblock %}
+
+{% block extra_css %}
+<style>
+  .quiz-wrapper {
+    min-height: calc(100vh - 80px);
+    background: linear-gradient(135deg, #FFF0EE 0%, #FFF8F8 100%);
+    padding: 48px 0 80px;
+  }
+  .quiz-card {
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+    overflow: hidden;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .quiz-header {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    padding: 32px 40px 28px;
+    color: white;
+  }
+  .quiz-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    margin-bottom: 8px;
+  }
+  .quiz-header p { opacity: 0.9; margin: 0; font-size: 0.9rem; }
+  .quiz-body { padding: 36px 40px 40px; }
+
+  /* Progress */
+  .progress-wrap { margin-bottom: 36px; }
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .progress-info .step-label { color: var(--primary); }
+  .progress-info .step-count { color: var(--text-muted); }
+  .progress { height: 6px; border-radius: 10px; background: #F0E8E6; }
+  .progress-bar {
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 10px;
+    transition: width 0.4s ease;
+  }
+
+  /* Steps */
+  .step { display: none; animation: fadeInStep 0.4s ease; }
+  .step.active { display: block; }
+  @keyframes fadeInStep {
+    from { opacity: 0; transform: translateX(16px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  .step-icon-wrap {
+    width: 60px; height: 60px;
+    border-radius: 18px;
+    background: var(--light-pink);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+  }
+  .question-text {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+  }
+  .question-desc {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  /* Option cards */
+  .options-grid {
+    display: grid;
+    gap: 12px;
+  }
+  .options-grid.grid-2 { grid-template-columns: 1fr 1fr; }
+  .options-grid.grid-1 { grid-template-columns: 1fr; }
+
+  .option-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    border: 2px solid #F0E8E6;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+    text-align: left;
+    width: 100%;
+  }
+  .option-card:hover {
+    border-color: var(--primary);
+    background: var(--light-pink);
+  }
+  .option-card.selected {
+    border-color: var(--primary);
+    background: var(--light-pink);
+  }
+  .option-card.selected .option-check {
+    background: var(--primary);
+    border-color: var(--primary);
+  }
+  .option-card.selected .option-check::after { opacity: 1; }
+  .option-emoji { font-size: 1.6rem; flex-shrink: 0; }
+  .option-text { flex: 1; }
+  .option-text strong { display: block; font-size: 0.92rem; color: var(--text-dark); }
+  .option-text span { font-size: 0.8rem; color: var(--text-muted); }
+  .option-check {
+    width: 22px; height: 22px;
+    border: 2px solid #DDD;
+    border-radius: 50%;
+    flex-shrink: 0;
+    position: relative;
+    transition: all 0.2s;
+  }
+  .option-check::after {
+    content: '✓';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  /* Input umur */
+  .age-input-wrap {
+    position: relative;
+    max-width: 200px;
+  }
+  .age-input {
+    width: 100%;
+    padding: 16px 50px 16px 20px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    border: 2px solid #F0E8E6;
+    border-radius: 14px;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .age-input:focus { border-color: var(--primary); }
+  /* Hides default spin buttons for better appearance */
+  .age-input::-webkit-outer-spin-button,
+  .age-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .age-input[type=number] {
+    -moz-appearance: textfield;
+  }
+  .age-label {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .age-range-info {
+    margin-top: 8px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+
+  /* Navigation buttons */
+  .quiz-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 36px;
+    padding-top: 28px;
+    border-top: 1px solid #F5F0EE;
+  }
+  .btn-prev {
+    background: none;
+    border: 2px solid #E8E8E8;
+    color: var(--text-muted);
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-weight: 600;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .btn-prev:hover { border-color: #CCC; color: var(--text-dark); }
+  .btn-prev:disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn-next {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 32px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(232,119,106,0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-next:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(232,119,106,0.4); }
+  .btn-next:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* Loading overlay */
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .loading-overlay.show { display: flex; }
+  .spinner-custom {
+    width: 56px; height: 56px;
+    border: 4px solid #F0E8E6;
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 1rem;
+  }
+  .loading-sub {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: -8px;
+  }
+
+  /* Error */
+  .alert-error {
+    background: #FFEBEE;
+    border: 1px solid #FFCDD2;
+    color: #C62828;
+    border-radius: 12px;
+    padding: 12px 18px;
+    font-size: 0.88rem;
+    margin-top: 16px;
+    display: none;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner-custom"></div>
+  <div class="loading-text">Menganalisis jenis kulitmu...</div>
+  <div class="loading-sub">Mohon tunggu sebentar 🌸</div>
+</div>
+
+<div class="quiz-wrapper">
+  <div class="container">
+    <div class="quiz-card">
+
+      <!-- Header -->
+      <div class="quiz-header">
+        <h2>📋 Analisis Jenis Kulit</h2>
+        <p>Jawab 6 pertanyaan berikut dengan jujur sesuai kondisi kulitmu saat ini</p>
+      </div>
+
+      <!-- Body -->
+      <div class="quiz-body">
+
+        <!-- Progress -->
+        <div class="progress-wrap">
+          <div class="progress-info">
+            <span class="step-label" id="stepLabel">Langkah 1 dari 6</span>
+            <span class="step-count" id="stepCount">0%</span>
+          </div>
+          <div class="progress">
+            <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- ── STEP 1: Umur ── -->
+        <div class="step active" data-step="1">
+          <div class="step-icon-wrap">🎂</div>
+          <div class="question-text">Berapa usiamu saat ini?</div>
+          <div class="question-desc">Usia memengaruhi jenis dan kondisi kulit secara signifikan</div>
+          <div class="age-input-wrap">
+            <input type="number" class="age-input" id="inputUmur"
+                   min="15" max="70" placeholder="25" />
+            <span class="age-label">tahun</span>
+          </div>
+          <div class="age-range-info">
+            <i class="bi bi-info-circle me-1"></i>Rentang: 15 – 70 tahun
+          </div>
+        </div>
+
+        <!-- ── STEP 2: Jenis Kelamin ── -->
+        <div class="step" data-step="2">
+          <div class="step-icon-wrap">👤</div>
+          <div class="question-text">Jenis kelaminmu?</div>
+          <div class="question-desc">Hormon memengaruhi kondisi dan jenis kulit</div>
+          <div class="options-grid grid-2">
+            <button class="option-card" data-field="jenis_kelamin" data-value="Laki-laki">
+              <span class="option-emoji">👨</span>
+              <div class="option-text">
+                <strong>Laki-laki</strong>
+              </div>
+              <div class="option-check"></div>
+            </button>
+            <button class="option-card" data-field="jenis_kelamin" data-value="Perempuan">
+              <span class="option-emoji">👩</span>
+              <div class="option-text">
+                <strong>Perempuan</strong>
+              </div>
+              <div class="option-check"></div>
+            </button>
+          </div>
+        </div>
+
+        <!-- ── STEP 3: Kelembapan ── -->
+        <div class="step" data-step="3">
+          <div class="step-icon-wrap">💧</div>
+          <div class="question-text">Bagaimana tingkat kelembapan kulitmu?</div>
+          <div class="question-desc">Perhatikan kondisi kulit setelah mencuci muka tanpa produk apapun</div>
+          <div class="options-grid grid-1">
+            <button class="option-card" data-field="kelembapan" data-value="Rendah">
+              <span class="option-emoji">🏜️</span>
+              <div class="option-text">
+                <strong>Rendah — Sangat kering dan tertarik</strong>
+                <span>Kulit terasa kencang, kering, atau bahkan perih setelah cuci muka</span>
+              </div>
+              <div class="option-check"></div>
+            </button>
+            <button class="option-card" data-field="kelembapan" data-value="Sedang">
+              <span class="option-emoji">🌤️</span>
+              <div class="option-text">
+                <strong>Sedang — Terasa normal</strong>
+                <span>Kulit terasa nyaman, tidak terlalu kering maupun lembap berlebihan</span>
+              </div>
+              <div class="option-check"></div>
+            </button>
+            <button class="option-card" data-field="kelembapan" data-value="Tinggi">
+              <span class="option-emoji">💦</span>
+              <div class="option-text">
+                <strong>Tinggi — Terasa lembap atau kenyal</strong>
+                <span>Kulit terasa lembap bahkan tanpa moisturizer</span>
+              </div>
+              <div class="option-check"></div>
+            </button>
+          </div>
+        </div>
+
+        <!-- ── STEP 4: Tingkat Minyak ── -->
+        <div class="step" data-step="4">
+          <div class="step-icon-wrap">✨</div>
+          <div class="question-text">Seberapa berminyak wajahmu?</div>
+          <div class="question-desc">Amati kondisi wajahmu sekitar 2–3 jam setelah cuci muka</div>
+          <div class="options-grid grid-1">
+            <button class="option-card" data-field="minyak" data-value="Rendah">
+              <span class="option-emoji">🪨</span>
+              <div class="option-text">
+                <strong>Tidak berminyak</strong>
+                <span>Wajah terlihat matte dan tidak ada kilap sama sekali</span>
+              </div>
+              <div class="option-check"></div>
+            </button>
+            <button class="option-card" data-field="minyak" data-value="Sedang">
+              <span class="option-emoji">🌟</span>
+              <div class="option-text">
+                <strong>Sedikit berminyak</strong>
+                <span>Ada sedikit kilap, terutama di area T-zone (dahi, hidung, dagu)</span>
+              </div>
+              <div class="option-check"></div>
+            </button>
+            <button class="option-card" data-field="minyak" data-value="Tinggi">
+              <span class="option-emoji">💦</span>
+              <div class="option-text">
+                <strong>Sangat berminyak</strong>
+                <span>Wajah terlihat mengkilap di mana-mana, perlu blotting paper</span>
+              </div>
+              <div class="option-check"></div>
+            </button>
+          </div>
+        </div>
+
+        <!-- ── STEP 5: Sensitivitas ── -->
+        <div class="step" data-step="5">
+          <div class="step-icon-wrap">🌡️</div>
+          <div class="question-text">Seberapa sensitif kulitmu?</div>
+          <div class="question-desc">Bagaimana kulitmu bereaksi terhadap produk baru atau faktor lingkungan?</div>
+          <div class="options-grid grid-1">
+            <button class="option-card" data-field="sensitivitas" data-value="Tinggi">
+              <span class="option-emoji">🚨</span>
+              <div class="option-text">
+                <strong>Sangat sensitif</strong>
+                <span>Mudah kemerahan, gatal, atau iritasi saat mencoba produk baru</span>
+              </div>
+              <div class="option-check"></div>
+            </button>
+            <button class="option-card" data-field="sensitivitas" data-value="Sedang">
+              <span class="option-emoji">⚠️</span>
+              <div class="option-text">
+                <strong>Kadang-kadang sensitif</strong>
+                <span>Sesekali bereaksi pada produk tertentu, tapi tidak selalu</span>
+              </div>
+              <div class="option-check"></div>
+            </button>
+            <button class="option-card" data-field="sensitivitas" data-value="Rendah">
+              <span class="option-emoji">✅</span>
+              <div class="option-text">
+                <strong>Tidak sensitif</strong>
+                <span>Kulit tahan terhadap berbagai produk, jarang mengalami iritasi</span>
+              </div>
+              <div class="option-check"></div>
+            </button>
+          </div>
+        </div>
+
+        <!-- ── STEP 6: Masalah Kulit ── -->
+        <div class="step" data-step="6">
+          <div class="step-icon-wrap">🎯</div>
+          <div class="question-text">Apa masalah kulitmu yang paling utama?</div>
+          <div class="question-desc">Pilih satu masalah yang paling ingin kamu atasi saat ini</div>
+          <div class="options-grid grid-2">
+            <button class="option-card" data-field="masalah_kulit" data-value="Jerawat">
+              <span class="option-emoji">🔴</span>
+              <div class="option-text">
+                <strong>Jerawat</strong>
+                <span>Bruntusan & acne</span>
+              </div>
+              <div class="option-check"></div>
+            </button>
+            <button class="option-card" data-field="masalah_kulit" data-value="Dehidrasi">
+              <span class="option-emoji">💧</span>
+              <div class="option-text">
+                <strong>Dehidrasi</strong>
+                <span>Kulit kering & kusam</span>
+              </div>
+              <div class="option-check"></div>
+            </button>
+            <button class="option-card" data-field="masalah_kulit" data-value="Kusam">
+              <span class="option-emoji">🌫️</span>
+              <div class="option-text">
+                <strong>Kusam</strong>
+                <span>Warna kulit tidak merata</span>
+              </div>
+              <div class="option-check"></div>
+            </button>
+            <button class="option-card" data-field="masalah_kulit" data-value="Pori besar">
+              <span class="option-emoji">🔍</span>
+              <div class="option-text">
+                <strong>Pori Besar</strong>
+                <span>Pori-pori terlihat jelas</span>
+              </div>
+              <div class="option-check"></div>
+            </button>
+            <button class="option-card" data-field="masalah_kulit" data-value="Flek hitam">
+              <span class="option-emoji">🟤</span>
+              <div class="option-text">
+                <strong>Flek Hitam</strong>
+                <span>Noda & hiperpigmentasi</span>
+              </div>
+              <div class="option-check"></div>
+            </button>
+            <button class="option-card" data-field="masalah_kulit" data-value="Iritasi">
+              <span class="option-emoji">🌡️</span>
+              <div class="option-text">
+                <strong>Iritasi</strong>
+                <span>Kemerahan & sensitif</span>
+              </div>
+              <div class="option-check"></div>
+            </button>
+            <button class="option-card" data-field="masalah_kulit" data-value="Penuaan">
+              <span class="option-emoji">⏳</span>
+              <div class="option-text">
+                <strong>Penuaan</strong>
+                <span>Kerutan & garis halus</span>
+              </div>
+              <div class="option-check"></div>
+            </button>
+            <button class="option-card" data-field="masalah_kulit" data-value="Bekas jerawat">
+              <span class="option-emoji">🩹</span>
+              <div class="option-text">
+                <strong>Bekas Jerawat</strong>
+                <span>Noda post-acne</span>
+              </div>
+              <div class="option-check"></div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Error -->
+        <div class="alert-error" id="alertError">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          <span id="errorMsg">Mohon lengkapi jawaban sebelum melanjutkan.</span>
+        </div>
+
+        <!-- Navigation -->
+        <div class="quiz-nav">
+          <button class="btn-prev" id="btnPrev" disabled onclick="prevStep()">
+            <i class="bi bi-arrow-left me-2"></i>Sebelumnya
+          </button>
+          <button class="btn-next" id="btnNext" onclick="nextStep()">
+            Selanjutnya <i class="bi bi-arrow-right ms-2"></i>
+          </button>
+        </div>
+
+      </div><!-- /quiz-body -->
+    </div><!-- /quiz-card -->
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const TOTAL_STEPS = 6;
+  let currentStep  = 1;
+  let answers      = {};
+
+  const steps    = document.querySelectorAll('.step');
+  const btnPrev  = document.getElementById('btnPrev');
+  const btnNext  = document.getElementById('btnNext');
+  const overlay  = document.getElementById('loadingOverlay');
+  const alertErr = document.getElementById('alertError');
+  const errMsg   = document.getElementById('errorMsg');
+
+  // ── Option cards ─────────────────────────────────────────
+  document.querySelectorAll('.option-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const field = card.dataset.field;
+      const value = card.dataset.value;
+      // Deselect semua di grup yang sama
+      document.querySelectorAll(`.option-card[data-field="${field}"]`)
+              .forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      answers[field] = value;
+      hideError();
+    });
+  });
+
+  // ── Progress update ───────────────────────────────────────
+  function updateProgress() {
+    const pct = Math.round(((currentStep - 1) / TOTAL_STEPS) * 100);
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('stepLabel').textContent =
+      `Langkah ${currentStep} dari ${TOTAL_STEPS}`;
+    document.getElementById('stepCount').textContent = pct + '%';
+  }
+
+  // ── Show/hide step ────────────────────────────────────────
+  function showStep(n) {
+    steps.forEach(s => s.classList.remove('active'));
+    document.querySelector(`.step[data-step="${n}"]`).classList.add('active');
+    btnPrev.disabled = (n === 1);
+    btnNext.innerHTML = n === TOTAL_STEPS
+      ? '<i class="bi bi-stars me-2"></i>Lihat Hasil'
+      : 'Selanjutnya <i class="bi bi-arrow-right ms-2"></i>';
+    updateProgress();
+    hideError();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── Validasi per step ─────────────────────────────────────
+  function validateStep(n) {
+    if (n === 1) {
+      const umur = parseInt(document.getElementById('inputUmur').value);
+      if (!umur || umur < 15 || umur > 70) {
+        showError('Masukkan usia yang valid (15 – 70 tahun)');
+        return false;
+      }
+      answers.umur = umur;
+      return true;
+    }
+    const fieldMap = {
+      2: 'jenis_kelamin',
+      3: 'kelembapan',
+      4: 'minyak',
+      5: 'sensitivitas',
+      6: 'masalah_kulit',
+    };
+    const field = fieldMap[n];
+    if (!answers[field]) {
+      showError('Pilih salah satu jawaban untuk melanjutkan.');
+      return false;
+    }
+    return true;
+  }
+
+  function showError(msg) {
+    errMsg.textContent = msg;
+    alertErr.style.display = 'block';
+  }
+  function hideError() { alertErr.style.display = 'none'; }
+
+  // ── Next ──────────────────────────────────────────────────
+  async function nextStep() {
+    if (!validateStep(currentStep)) return;
+
+    if (currentStep === TOTAL_STEPS) {
+      await submitForm();
+      return;
+    }
+    currentStep++;
+    showStep(currentStep);
+  }
+
+  // ── Prev ──────────────────────────────────────────────────
+  function prevStep() {
+    if (currentStep > 1) {
+      currentStep--;
+      showStep(currentStep);
+    }
+  }
+
+  // ── Submit ────────────────────────────────────────────────
+  async function submitForm() {
+    overlay.classList.add('show');
+    try {
+      const res = await fetch('/proses', {
+        method : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body   : JSON.stringify(answers),
+      });
+      const data = await res.json();
+      if (data.error) {
+        overlay.classList.remove('show');
+        showError('Terjadi kesalahan: ' + data.error);
+        return;
+      }
+      // Redirect ke halaman hasil
+      window.location.href = '/hasil';
+    } catch (err) {
+      overlay.classList.remove('show');
+      showError('Gagal menghubungi server. Coba lagi.');
+    }
+  }
+
+  // Inisialisasi
+  showStep(1);
+</script>
+{% endblock %}

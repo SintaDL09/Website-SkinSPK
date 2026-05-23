@@ -1,0 +1,593 @@
+{% extends "base.html" %}
+{% block title %}Hasil Analisis Kulitmu — SkinSPK{% endblock %}
+
+{% block extra_css %}
+<style>
+  .hasil-wrapper { background: #FAFAF8; padding: 48px 0 80px; }
+
+  /* ── SUMMARY BANNER ── */
+  .summary-banner {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 24px;
+    padding: 40px 48px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+  .summary-banner::after {
+    content: '🧴';
+    position: absolute;
+    font-size: 9rem;
+    opacity: 0.08;
+    right: 20px; bottom: -20px;
+  }
+  .summary-banner .label {
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    opacity: 0.85;
+    font-weight: 600;
+  }
+  .skin-type-big {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 600;
+    margin: 8px 0 12px;
+  }
+  .confidence-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .conf-pill {
+    background: rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .conf-pill.top { background: rgba(255,255,255,0.35); }
+
+  /* ── SECTION CARD ── */
+  .section-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    padding: 28px 32px;
+    margin-bottom: 24px;
+  }
+  .section-card-title {
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-card-title .icon-wrap {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  /* ── KULIT INFO ── */
+  .kulit-info-box {
+    background: var(--bg, #FFF0EE);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .kulit-icon-big {
+    font-size: 3rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .kulit-tips {
+    background: white;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-top: 16px;
+    font-size: 0.88rem;
+    color: #555;
+    border-left: 3px solid var(--primary);
+  }
+
+  /* ── SAW TABLE ── */
+  .saw-table { width: 100%; border-collapse: collapse; }
+  .saw-table th {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #999;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-bottom: 2px solid #F5F0EE;
+    text-align: left;
+  }
+  .saw-table td {
+    padding: 12px 12px;
+    border-bottom: 1px solid #F8F5F4;
+    font-size: 0.9rem;
+    vertical-align: middle;
+  }
+  .saw-table tr:last-child td { border-bottom: none; }
+  .saw-table tr:hover td { background: #FAFAFA; }
+  .rank-badge {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  .rank-1 { background: #FFF3CD; color: #856404; }
+  .rank-2 { background: #E8F4FD; color: #0C63A0; }
+  .rank-3 { background: #E8F5E9; color: #2E7D32; }
+  .rank-other { background: #F5F5F5; color: #888; }
+
+  .vi-bar-wrap { display: flex; align-items: center; gap: 8px; }
+  .vi-bar-bg {
+    flex: 1; height: 8px;
+    background: #F0EEE8;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .vi-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    transition: width 1s ease;
+  }
+  .vi-val { font-weight: 700; font-size: 0.88rem; min-width: 36px; }
+
+  /* ── INGREDIENT CARDS ── */
+  .ingredient-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+  }
+  .ingredient-card {
+    border-radius: 14px;
+    padding: 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .ingredient-card.recommended {
+    background: linear-gradient(135deg, #E8F5E9, #F1F8E9);
+    border: 1.5px solid #A5D6A7;
+  }
+  .ingredient-card.avoid {
+    background: linear-gradient(135deg, #FFEBEE, #FFF3F3);
+    border: 1.5px solid #EF9A9A;
+  }
+  .ingredient-card.neutral {
+    background: #FAFAFA;
+    border: 1.5px solid #E8E8E8;
+  }
+  .ing-emoji { font-size: 1.8rem; }
+  .ing-name { font-weight: 700; font-size: 0.95rem; }
+  .ing-manfaat { font-size: 0.78rem; color: #666; line-height: 1.5; }
+  .ing-score {
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+
+  /* ── AVOID LIST ── */
+  .avoid-list { display: flex; flex-wrap: wrap; gap: 10px; }
+  .avoid-tag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #FFEBEE;
+    border: 1px solid #EF9A9A;
+    color: #C62828;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+
+  /* ── PRODUK CARDS ── */
+  .produk-card {
+    background: white;
+    border: 1.5px solid #F0E8E6;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    transition: all 0.2s;
+    margin-bottom: 12px;
+  }
+  .produk-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 20px rgba(232,119,106,0.12);
+    transform: translateX(4px);
+  }
+  .produk-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    background: var(--light-pink);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+  .produk-brand {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--primary);
+    margin-bottom: 2px;
+  }
+  .produk-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+  }
+  .produk-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .produk-tag {
+    background: #F5F5F5;
+    color: #666;
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  .produk-tag.highlight {
+    background: var(--light-pink);
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  /* ── RECAP INPUT ── */
+  .recap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
+  .recap-item {
+    background: #FAFAFA;
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .recap-label { font-size: 0.75rem; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .recap-value { font-weight: 700; font-size: 0.95rem; color: var(--text-dark); }
+
+  /* ── BOBOT INFO ── */
+  .bobot-box {
+    background: var(--light-pink);
+    border-radius: 14px;
+    padding: 18px 22px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-size: 0.88rem;
+  }
+  .bobot-item { display: flex; align-items: center; gap: 8px; }
+  .bobot-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--primary);
+    flex-shrink: 0;
+  }
+
+  /* ── CTA BOTTOM ── */
+  .cta-bottom {
+    text-align: center;
+    padding: 40px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+  }
+  .disclaimer {
+    background: #FFF8E7;
+    border: 1px solid #FFE082;
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 0.82rem;
+    color: #7B6000;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin-top: 24px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hasil-wrapper">
+  <div class="container">
+
+    <!-- SUMMARY BANNER -->
+    <div class="summary-banner">
+      <div class="label">Hasil Analisis Jenis Kulitmu</div>
+      <div class="skin-type-big">
+        {{ data.info_kulit.icon }} {{ data.jenis_kulit }}
+      </div>
+      <p style="opacity:0.9; max-width:520px; margin-bottom:16px;">
+        {{ data.info_kulit.deskripsi }}
+      </p>
+      <div class="confidence-pills">
+        {% for kelas, pct in data.confidence.items() %}
+        <div class="conf-pill {% if kelas == data.jenis_kulit %}top{% endif %}">
+          {{ kelas }}: {{ pct }}%
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-8">
+
+        <!-- KULIT DETAIL -->
+        <div class="section-card">
+          <div class="section-card-title">
+            <div class="icon-wrap" style="background:#FFF0EE;">🔍</div>
+            Tentang Jenis Kulitmu
+          </div>
+          <div class="kulit-info-box" style="--bg: {{ data.info_kulit.bg }}">
+            <div class="kulit-icon-big">{{ data.info_kulit.icon }}</div>
+            <div>
+              <h5 style="font-weight:700; margin-bottom:8px;">Kulit {{ data.jenis_kulit }}</h5>
+              <p style="color:#555; font-size:0.9rem; margin-bottom:0;">
+                {{ data.info_kulit.deskripsi }}
+              </p>
+            </div>
+          </div>
+          <div class="kulit-tips">
+            <strong><i class="bi bi-lightbulb me-2" style="color:var(--primary)"></i>Tips:</strong>
+            {{ data.info_kulit.tips }}
+          </div>
+        </div>
+
+        <!-- INGREDIENT DIREKOMENDASIKAN -->
+        <div class="section-card">
+          <div class="section-card-title">
+            <div class="icon-wrap" style="background:#E8F5E9;">✅</div>
+            Ingredient yang Direkomendasikan
+          </div>
+          <div class="ingredient-grid">
+            {% for item in data.saw_detail %}
+            {% if item.status == 'recommended' %}
+            <div class="ingredient-card recommended">
+              <div class="ing-emoji">{{ item.icon }}</div>
+              <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <span class="ing-name">{{ item.ingredient }}</span>
+                  <span class="rank-badge rank-{{ item.ranking }}">
+                    #{{ item.ranking }}
+                  </span>
+                </div>
+                <div class="ing-manfaat">{{ item.manfaat }}</div>
+                <div class="ing-score" style="color:#2E7D32;">
+                  Skor SAW: {{ item.Vi }}
+                </div>
+              </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- INGREDIENT DIHINDARI -->
+        {% if data.avoid %}
+        <div class="section-card">
+          <div class="section-card-title">
+            <div class="icon-wrap" style="background:#FFEBEE;">❌</div>
+            Ingredient yang Sebaiknya Dihindari
+          </div>
+          <p style="font-size:0.88rem; color:#666; margin-bottom:16px;">
+            Ingredient berikut memiliki skor kesesuaian rendah untuk jenis kulitmu.
+            Periksa label produk sebelum membeli.
+          </p>
+          <div class="avoid-list">
+            {% for ing in data.avoid %}
+            {% for item in data.saw_detail if item.ingredient == ing %}
+            <div class="avoid-tag">
+              <span>{{ item.icon }}</span>
+              {{ ing }}
+              <span style="font-weight:400; font-size:0.75rem;">Vi={{ item.Vi }}</span>
+            </div>
+            {% endfor %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- TABEL SAW LENGKAP -->
+        <div class="section-card">
+          <div class="section-card-title">
+            <div class="icon-wrap" style="background:#EEF5FF;">⚖️</div>
+            Perhitungan SAW Lengkap
+          </div>
+          <div class="bobot-box mb-4">
+            <div class="bobot-item">
+              <div class="bobot-dot"></div>
+              <span><strong>K1</strong> = Kesesuaian Jenis Kulit &nbsp;(bobot {{ (data.bobot.K1 * 100)|int }}%)</span>
+            </div>
+            <div class="bobot-item">
+              <div class="bobot-dot" style="background: var(--secondary)"></div>
+              <span><strong>K2</strong> = Kesesuaian Masalah Kulit (bobot {{ (data.bobot.K2 * 100)|int }}%)</span>
+            </div>
+            <div style="font-size:0.82rem; color:#888;">
+              Normalisasi: r = x / max(x) &nbsp;|&nbsp; Vi = 0.6×r_K1 + 0.4×r_K2
+            </div>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="saw-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Ingredient</th>
+                  <th>K1</th>
+                  <th>K2</th>
+                  <th>r_K1</th>
+                  <th>r_K2</th>
+                  <th>Skor Vi</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in data.saw_detail %}
+                <tr>
+                  <td>
+                    <span class="rank-badge
+                      {% if item.ranking == 1 %}rank-1
+                      {% elif item.ranking == 2 %}rank-2
+                      {% elif item.ranking == 3 %}rank-3
+                      {% else %}rank-other{% endif %}">
+                      {{ item.ranking }}
+                    </span>
+                  </td>
+                  <td>
+                    <span style="font-size:1.1rem; margin-right:6px;">{{ item.icon }}</span>
+                    <strong>{{ item.ingredient }}</strong>
+                  </td>
+                  <td>{{ item.K1 }}</td>
+                  <td>{{ item.K2 }}</td>
+                  <td>{{ item.r_K1 }}</td>
+                  <td>{{ item.r_K2 }}</td>
+                  <td>
+                    <div class="vi-bar-wrap">
+                      <div class="vi-bar-bg">
+                        <div class="vi-bar-fill" style="width:{{ (item.Vi * 100)|int }}%"></div>
+                      </div>
+                      <span class="vi-val">{{ item.Vi }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    {% if item.status == 'recommended' %}
+                    <span class="badge-recommended">✅ Cocok</span>
+                    {% elif item.status == 'avoid' %}
+                    <span class="badge-avoid">❌ Hindari</span>
+                    {% else %}
+                    <span class="badge-neutral">— Netral</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- PRODUK REKOMENDASI -->
+        {% if data.produk %}
+        <div class="section-card">
+          <div class="section-card-title">
+            <div class="icon-wrap" style="background:#FFF0EE;">🛍️</div>
+            Rekomendasi Produk Skincare Lokal Indonesia
+          </div>
+          <p style="font-size:0.88rem; color:#666; margin-bottom:20px;">
+            Produk-produk berikut mengandung ingredient yang direkomendasikan
+            dan sesuai untuk kulitmu.
+          </p>
+          {% for produk in data.produk %}
+          <div class="produk-card">
+            <div class="produk-icon">🧴</div>
+            <div style="flex:1;">
+              <div class="produk-brand">{{ produk.brand }}</div>
+              <div class="produk-name">{{ produk.produk }}</div>
+              <div class="produk-tags">
+                <span class="produk-tag highlight">{{ produk.bahan_aktif }}</span>
+                <span class="produk-tag">{{ produk.jenis_produk }}</span>
+                <span class="produk-tag">Untuk: {{ produk.untuk_kulit }}</span>
+                <span class="produk-tag">{{ produk.masalah }}</span>
+                {% if produk.ukuran %}
+                <span class="produk-tag">{{ produk.ukuran }}</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+      </div><!-- /col-8 -->
+
+      <!-- SIDEBAR -->
+      <div class="col-lg-4">
+
+        <!-- REKAP INPUT -->
+        <div class="section-card" style="position:sticky; top:90px;">
+          <div class="section-card-title">
+            <div class="icon-wrap" style="background:#F0F0FF;">📋</div>
+            Ringkasan Inputmu
+          </div>
+          <div class="recap-grid">
+            <div class="recap-item">
+              <div class="recap-label">Usia</div>
+              <div class="recap-value">{{ data.input.umur }} thn</div>
+            </div>
+            <div class="recap-item">
+              <div class="recap-label">Kelamin</div>
+              <div class="recap-value">{{ data.input.jenis_kelamin }}</div>
+            </div>
+            <div class="recap-item">
+              <div class="recap-label">Kelembapan</div>
+              <div class="recap-value">{{ data.input.kelembapan }}</div>
+            </div>
+            <div class="recap-item">
+              <div class="recap-label">Tingkat Minyak</div>
+              <div class="recap-value">{{ data.input.minyak }}</div>
+            </div>
+            <div class="recap-item">
+              <div class="recap-label">Sensitivitas</div>
+              <div class="recap-value">{{ data.input.sensitivitas }}</div>
+            </div>
+            <div class="recap-item">
+              <div class="recap-label">Masalah Utama</div>
+              <div class="recap-value">{{ data.input.masalah_kulit }}</div>
+            </div>
+          </div>
+
+          <hr style="margin:24px 0; border-color:#F0E8E6;">
+
+          <!-- Top 3 Ingredient -->
+          <div style="font-weight:700; font-size:0.92rem; margin-bottom:12px;">
+            🏆 Top 3 Ingredient
+          </div>
+          {% for item in data.saw_detail[:3] %}
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 0;
+                      border-bottom: 1px solid #F8F5F4;">
+            <span style="font-size:1.4rem;">{{ item.icon }}</span>
+            <div style="flex:1;">
+              <div style="font-weight:600; font-size:0.9rem;">{{ item.ingredient }}</div>
+              <div style="font-size:0.75rem; color:#999;">Ranking #{{ item.ranking }}</div>
+            </div>
+            <div style="font-weight:700; color:var(--primary); font-size:0.9rem;">
+              {{ item.Vi }}
+            </div>
+          </div>
+          {% endfor %}
+
+          <div class="disclaimer">
+            <i class="bi bi-info-circle" style="font-size:1.1rem; flex-shrink:0;"></i>
+            <span>Ini adalah rekomendasi berbasis data, bukan pengganti konsultasi dokter spesialis kulit.</span>
+          </div>
+
+          <!-- Ulangi -->
+          <a href="/kuesioner" class="btn btn-primary-custom w-100 mt-4"
+             style="text-align:center; text-decoration:none; display:block;">
+            <i class="bi bi-arrow-repeat me-2"></i>Analisis Ulang
+          </a>
+          <a href="/" class="btn btn-outline-secondary w-100 mt-2"
+             style="border-radius:12px; font-weight:600;">
+            <i class="bi bi-house me-2"></i>Kembali ke Beranda
+          </a>
+        </div>
+
+      </div><!-- /col-4 -->
+    </div><!-- /row -->
+
+  </div>
+</div>
+{% endblock %}

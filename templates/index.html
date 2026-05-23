@@ -1,0 +1,402 @@
+{% extends "base.html" %}
+{% block title %}SkinSPK — Kenali Jenis Kulitmu{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, #FFF0EE 0%, #FFF8F0 50%, #F0F8FF 100%);
+    padding: 90px 0 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -100px; right: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(232,119,106,0.1), transparent 70%);
+    border-radius: 50%;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: -80px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(168,218,220,0.15), transparent 70%);
+    border-radius: 50%;
+  }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 600;
+    line-height: 1.2;
+    color: #2D2D2D;
+  }
+  .hero-title span { color: var(--primary); }
+  .hero-subtitle {
+    font-size: 1.05rem;
+    color: #666;
+    line-height: 1.7;
+    max-width: 520px;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: white;
+    border: 1px solid #F0E0DC;
+    color: var(--primary);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+  .hero-img-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .hero-circle-main {
+    width: 300px; height: 300px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 7rem;
+    box-shadow: 0 20px 60px rgba(232,119,106,0.3);
+    position: relative;
+    z-index: 1;
+  }
+  .float-card {
+    position: absolute;
+    background: white;
+    border-radius: 14px;
+    padding: 10px 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+    z-index: 2;
+    animation: float 3s ease-in-out infinite;
+  }
+  .float-card-1 { top: 20px; left: -20px; animation-delay: 0s; }
+  .float-card-2 { bottom: 40px; right: -30px; animation-delay: 1s; }
+  .float-card-3 { top: 60%; left: -40px; animation-delay: 2s; }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-8px); }
+  }
+
+  /* ── HOW IT WORKS ── */
+  .step-card {
+    text-align: center;
+    padding: 36px 24px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    transition: all 0.3s;
+    height: 100%;
+  }
+  .step-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-hover);
+  }
+  .step-number {
+    width: 48px; height: 48px;
+    background: var(--light-pink);
+    color: var(--primary);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 1.1rem;
+    margin: 0 auto 20px;
+  }
+  .step-icon {
+    font-size: 2.8rem;
+    margin-bottom: 16px;
+    display: block;
+  }
+  .step-card h5 {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+  .step-card p {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* ── FEATURES ── */
+  .feature-item {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 20px;
+    background: white;
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+    transition: all 0.3s;
+  }
+  .feature-item:hover { transform: translateX(4px); box-shadow: var(--shadow-hover); }
+  .feature-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+
+  /* ── SKIN TYPES ── */
+  .skin-type-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px 20px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transition: all 0.3s;
+    height: 100%;
+    border-top: 4px solid transparent;
+  }
+  .skin-type-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+  .skin-type-icon { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+  .skin-type-card h6 { font-weight: 700; margin-bottom: 8px; }
+  .skin-type-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; }
+
+  /* ── CTA SECTION ── */
+  .cta-section {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 24px;
+    padding: 60px 40px;
+    text-align: center;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-section::before {
+    content: '🌸';
+    position: absolute;
+    font-size: 8rem;
+    opacity: 0.08;
+    top: -20px; right: -20px;
+  }
+  .cta-section::after {
+    content: '✨';
+    position: absolute;
+    font-size: 6rem;
+    opacity: 0.08;
+    bottom: -10px; left: 20px;
+  }
+  .btn-cta-white {
+    background: white;
+    color: var(--primary);
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    padding: 14px 40px;
+    font-size: 1rem;
+    transition: all 0.3s;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  }
+  .btn-cta-white:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    color: var(--primary-dark);
+  }
+
+  /* ── STATS ── */
+  .stat-item { text-align: center; }
+  .stat-number {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--primary);
+    font-family: 'Playfair Display', serif;
+  }
+  .stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="container" style="position:relative; z-index:1;">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <div class="hero-badge">
+          <i class="bi bi-stars"></i> Powered by Machine Learning + SAW
+        </div>
+        <h1 class="hero-title mb-4">
+          Temukan <span>Ingredient</span><br>
+          Skincare yang Tepat<br>
+          untuk Kulitmu
+        </h1>
+        <p class="hero-subtitle mb-5">
+          Sistem cerdas yang menganalisis jenis kulitmu menggunakan
+          <strong>Decision Tree</strong> dan merekomendasikan bahan aktif skincare
+          terbaik dengan metode <strong>Simple Additive Weighting (SAW)</strong>.
+        </p>
+        <div class="d-flex gap-3 flex-wrap">
+          <a href="/kuesioner" class="btn btn-primary-custom">
+            <i class="bi bi-clipboard-check me-2"></i>Mulai Analisis Gratis
+          </a>
+          <a href="/about" class="btn btn-outline-secondary" style="border-radius:12px; padding:14px 28px; font-weight:600;">
+            Pelajari Lebih Lanjut
+          </a>
+        </div>
+        <div class="row mt-5 g-4">
+          <div class="col-4 stat-item">
+            <div class="stat-number">2000+</div>
+            <div class="stat-label">Data Training</div>
+          </div>
+          <div class="col-4 stat-item">
+            <div class="stat-number">94%</div>
+            <div class="stat-label">Akurasi Model</div>
+          </div>
+          <div class="col-4 stat-item">
+            <div class="stat-number">8</div>
+            <div class="stat-label">Bahan Aktif</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="hero-img-wrapper" style="height:380px;">
+          <div class="hero-circle-main">🧴</div>
+          <div class="float-card float-card-1">
+            <span style="font-size:1.4rem;">✨</span>
+            <div>
+              <div style="font-size:0.7rem; color:#999; font-weight:400;">Hasil Analisis</div>
+              <div style="color:#2D2D2D;">Kulit Berminyak</div>
+            </div>
+          </div>
+          <div class="float-card float-card-2">
+            <span style="font-size:1.4rem;">💧</span>
+            <div>
+              <div style="font-size:0.7rem; color:#999; font-weight:400;">Rekomendasi #1</div>
+              <div style="color:#2D2D2D;">Niacinamide</div>
+            </div>
+          </div>
+          <div class="float-card float-card-3">
+            <span style="font-size:1.4rem;">✅</span>
+            <div>
+              <div style="font-size:0.7rem; color:#999; font-weight:400;">Skor SAW</div>
+              <div style="color:#2D2D2D;">Vi = 0.920</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ── -->
+<section class="py-5 mt-4">
+  <div class="container">
+    <div class="text-center mb-5">
+      <p class="text-primary-custom fw-600 mb-2" style="font-size:0.9rem; letter-spacing:1px; text-transform:uppercase;">Cara Kerja</p>
+      <h2 class="section-title">Bagaimana Sistem Ini Bekerja?</h2>
+      <p class="text-muted" style="max-width:500px; margin:12px auto 0;">Hanya 4 langkah mudah untuk mendapatkan rekomendasi skincare yang dipersonalisasi</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-3">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <span class="step-icon">📝</span>
+          <h5>Isi Kuesioner</h5>
+          <p>Jawab 6 pertanyaan singkat tentang kondisi dan kebiasaan kulitmu</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <span class="step-icon">🤖</span>
+          <h5>Analisis AI</h5>
+          <p>Decision Tree mengklasifikasikan jenis kulitmu secara akurat</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <span class="step-icon">⚖️</span>
+          <h5>Perhitungan SAW</h5>
+          <p>Metode SAW meranking ingredient terbaik sesuai kondisi kulitmu</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="step-card">
+          <div class="step-number">4</div>
+          <span class="step-icon">🎯</span>
+          <h5>Hasil & Produk</h5>
+          <p>Dapatkan rekomendasi ingredient dan produk skincare lokal Indonesia</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── JENIS KULIT ── -->
+<section class="py-5" style="background: white;">
+  <div class="container">
+    <div class="text-center mb-5">
+      <p class="text-primary-custom fw-600 mb-2" style="font-size:0.9rem; letter-spacing:1px; text-transform:uppercase;">4 Jenis Kulit</p>
+      <h2 class="section-title">Yang Kami Analisis</h2>
+    </div>
+    <div class="row g-4">
+      <div class="col-6 col-md-3">
+        <div class="skin-type-card" style="border-top-color: #FF6B35;">
+          <span class="skin-type-icon">✨</span>
+          <h6 style="color:#FF6B35;">Berminyak</h6>
+          <p>Produksi sebum berlebih, T-zone mengkilap, pori besar</p>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="skin-type-card" style="border-top-color: #8B6F47;">
+          <span class="skin-type-icon">🌵</span>
+          <h6 style="color:#8B6F47;">Kering</h6>
+          <p>Kurang kelembapan, terasa tertarik, rentan bersisik</p>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="skin-type-card" style="border-top-color: #4CAF50;">
+          <span class="skin-type-icon">⭐</span>
+          <h6 style="color:#4CAF50;">Normal</h6>
+          <p>Seimbang antara minyak dan kelembapan, jarang bermasalah</p>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="skin-type-card" style="border-top-color: #2196F3;">
+          <span class="skin-type-icon">⚖️</span>
+          <h6 style="color:#2196F3;">Kombinasi</h6>
+          <p>T-zone berminyak, area pipi normal atau kering</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="py-5">
+  <div class="container">
+    <div class="cta-section">
+      <h2 style="font-family:'Playfair Display',serif; font-size:2.2rem; margin-bottom:16px;">
+        Siap Mengenal Kulitmu?
+      </h2>
+      <p style="opacity:0.9; font-size:1.05rem; max-width:500px; margin:0 auto 32px;">
+        Isi kuesioner singkat dan dapatkan rekomendasi ingredient skincare yang dipersonalisasi khusus untukmu
+      </p>
+      <a href="/kuesioner" class="btn btn-cta-white">
+        <i class="bi bi-arrow-right-circle me-2"></i>Mulai Sekarang — Gratis!
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

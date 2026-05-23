@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+{% block title %}Tentang Sistem — SkinSPK{% endblock %}
+
+{% block extra_css %}
+<style>
+  .about-hero {
+    background: linear-gradient(135deg, #FFF0EE, #FFF8F0);
+    padding: 64px 0 56px;
+  }
+  .method-card {
+    background: white;
+    border-radius: 20px;
+    padding: 32px 28px;
+    box-shadow: var(--shadow);
+    height: 100%;
+    transition: all 0.3s;
+    border-top: 4px solid var(--primary);
+  }
+  .method-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+  .method-icon { font-size: 2.5rem; margin-bottom: 16px; display: block; }
+  .flow-step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 20px 0;
+    border-bottom: 1px solid #F5F0EE;
+  }
+  .flow-step:last-child { border-bottom: none; }
+  .flow-num {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    background: var(--light-pink);
+    color: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .team-card {
+    text-align: center;
+    padding: 28px 20px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+  }
+  .team-avatar {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem;
+    margin: 0 auto 16px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<section class="about-hero">
+  <div class="container">
+    <div class="text-center">
+      <p class="text-primary-custom fw-600 mb-2" style="font-size:0.9rem; letter-spacing:1px; text-transform:uppercase;">Tentang Sistem</p>
+      <h1 class="section-title mb-4">Bagaimana SkinSPK Bekerja?</h1>
+      <p class="text-muted" style="max-width:600px; margin:0 auto; font-size:1rem; line-height:1.7;">
+        SkinSPK adalah sistem pendukung keputusan berbasis <strong>Hybrid Machine Learning</strong>
+        yang mengintegrasikan Decision Tree dan Simple Additive Weighting (SAW) untuk
+        memberikan rekomendasi ingredient skincare yang dipersonalisasi.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- METODE -->
+<section class="py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="section-title">Metode yang Digunakan</h2>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="method-card">
+          <span class="method-icon">🤖</span>
+          <h4 style="font-weight:700; margin-bottom:12px;">Decision Tree CART</h4>
+          <p style="color:#666; font-size:0.9rem; line-height:1.7;">
+            Algoritma machine learning yang digunakan untuk mengklasifikasikan
+            jenis kulit pengguna. Model dilatih menggunakan dataset
+            <strong>2.000 record</strong> data karakteristik kulit Indonesia
+            dengan akurasi <strong>94%</strong>.
+          </p>
+          <div style="background:#F8F8F8; border-radius:10px; padding:14px 16px; margin-top:16px; font-size:0.82rem;">
+            <div style="font-weight:700; margin-bottom:8px; color:#444;">Parameter Model:</div>
+            <div style="color:#666; line-height:2;">
+              Criterion: Entropy &nbsp;|&nbsp; Max Depth: 10<br>
+              Min Samples Split: 10 &nbsp;|&nbsp; Random State: 42<br>
+              Cross Validation: 10-Fold
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="method-card" style="border-top-color: var(--secondary)">
+          <span class="method-icon">⚖️</span>
+          <h4 style="font-weight:700; margin-bottom:12px;">Simple Additive Weighting (SAW)</h4>
+          <p style="color:#666; font-size:0.9rem; line-height:1.7;">
+            Metode pengambilan keputusan multi-kriteria yang meranking
+            <strong>8 bahan aktif skincare</strong> berdasarkan dua kriteria
+            yang dibobotkan secara proporsional.
+          </p>
+          <div style="background:#F8F8F8; border-radius:10px; padding:14px 16px; margin-top:16px; font-size:0.82rem;">
+            <div style="font-weight:700; margin-bottom:8px; color:#444;">Kriteria & Bobot:</div>
+            <div style="color:#666; line-height:2;">
+              K1: Kesesuaian Jenis Kulit = <strong>60%</strong><br>
+              K2: Kesesuaian Masalah Kulit = <strong>40%</strong><br>
+              Normalisasi: r = x / max(x) &nbsp;|&nbsp; Vi = Σ(w × r)
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ALUR SISTEM -->
+<section class="py-5" style="background:white;">
+  <div class="container">
+    <div class="row g-5 align-items-start">
+      <div class="col-lg-6">
+        <h2 class="section-title mb-4">Alur Sistem Hybrid</h2>
+        <div class="flow-step">
+          <div class="flow-num">1</div>
+          <div>
+            <strong>User Isi Kuesioner</strong>
+            <p style="margin:4px 0 0; font-size:0.88rem; color:#666;">
+              6 pertanyaan: umur, jenis kelamin, tingkat kelembapan,
+              tingkat minyak, sensitivitas, dan masalah kulit utama
+            </p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">2</div>
+          <div>
+            <strong>Preprocessing & Encoding</strong>
+            <p style="margin:4px 0 0; font-size:0.88rem; color:#666;">
+              Input user di-transform menggunakan pipeline yang sudah dilatih
+              (OrdinalEncoder + RobustScaler) — anti data leakage
+            </p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">3</div>
+          <div>
+            <strong>Decision Tree → Prediksi Jenis Kulit</strong>
+            <p style="margin:4px 0 0; font-size:0.88rem; color:#666;">
+              Model mengklasifikasikan jenis kulit: Kering, Normal,
+              Kombinasi, atau Berminyak beserta skor confidence-nya
+            </p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">4</div>
+          <div>
+            <strong>SAW → Ranking 8 Ingredient</strong>
+            <p style="margin:4px 0 0; font-size:0.88rem; color:#666;">
+              Hasil DT + masalah kulit input digunakan untuk menghitung
+              skor Vi setiap ingredient. Matriks K1 (jenis kulit) dan
+              K2 (masalah kulit) dinormalisasi lalu dibobotkan
+            </p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">5</div>
+          <div>
+            <strong>Output Final</strong>
+            <p style="margin:4px 0 0; font-size:0.88rem; color:#666;">
+              Ingredient direkomendasikan (top 3), ingredient yang dihindari,
+              dan produk skincare lokal Indonesia yang sesuai
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div style="background: linear-gradient(135deg, #FFF0EE, #FFF8F0);
+                    border-radius: 20px; padding: 32px; font-family: monospace;">
+          <div style="font-size:0.82rem; color:#888; margin-bottom:16px; font-family:'Poppins',sans-serif; font-weight:600;">
+            ALUR SISTEM
+          </div>
+          {% set steps_text = [
+            ('📝', 'Input Kuesioner', '6 pertanyaan user'),
+            ('⚙️', 'Preprocessing', 'Encoding + Scaling'),
+            ('🤖', 'Decision Tree', 'Prediksi jenis kulit'),
+            ('🔗', 'Hasil DT + Masalah Kulit', 'Gabungan input untuk SAW'),
+            ('⚖️', 'SAW', 'Hitung skor Vi tiap ingredient'),
+            ('✅', 'Output', 'Ingredient cocok & hindari + Produk'),
+          ] %}
+          {% for icon, title, sub in steps_text %}
+          <div style="display:flex; gap:12px; align-items:flex-start; margin-bottom:{% if not loop.last %}0{% else %}0{% endif %};">
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <div style="width:36px; height:36px; background:white; border-radius:10px;
+                          display:flex; align-items:center; justify-content:center;
+                          font-size:1.1rem; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                {{ icon }}
+              </div>
+              {% if not loop.last %}
+              <div style="width:2px; height:24px; background:#E8C8C4; margin:4px 0;"></div>
+              {% endif %}
+            </div>
+            <div style="padding-top:6px; {% if not loop.last %}margin-bottom:0{% endif %}">
+              <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:0.9rem;">{{ title }}</div>
+              <div style="font-family:'Poppins',sans-serif; font-size:0.78rem; color:#888;">{{ sub }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DATASET -->
+<section class="py-5">
+  <div class="container">
+    <h2 class="section-title text-center mb-5">Dataset yang Digunakan</h2>
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="section-card" style="background:white; border-radius:20px; padding:28px; box-shadow:var(--shadow);">
+          <div style="font-size:2rem; margin-bottom:12px;">📊</div>
+          <h5 style="font-weight:700;">Skin_Type_Indonesia.csv</h5>
+          <p style="color:#666; font-size:0.88rem; line-height:1.7;">
+            Dataset untuk training dan testing model Decision Tree.
+          </p>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px;">
+            {% for label, val in [('Records','2.000'),('Fitur Input','5'),('Kelas Target','4'),('Akurasi','94%')] %}
+            <div style="background:#F8F8F8; border-radius:10px; padding:12px; text-align:center;">
+              <div style="font-weight:700; font-size:1.1rem; color:var(--primary);">{{ val }}</div>
+              <div style="font-size:0.75rem; color:#999;">{{ label }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="section-card" style="background:white; border-radius:20px; padding:28px; box-shadow:var(--shadow);">
+          <div style="font-size:2rem; margin-bottom:12px;">🛍️</div>
+          <h5 style="font-weight:700;">dataset_skic.csv</h5>
+          <p style="color:#666; font-size:0.88rem; line-height:1.7;">
+            Database produk skincare lokal Indonesia untuk sistem rekomendasi.
+          </p>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px;">
+            {% for label, val in [('Produk','185'),('Brand','10'),('Bahan Aktif','8'),('Masalah Kulit','8')] %}
+            <div style="background:#F8F8F8; border-radius:10px; padding:12px; text-align:center;">
+              <div style="font-weight:700; font-size:1.1rem; color:var(--secondary);">{{ val }}</div>
+              <div style="font-size:0.75rem; color:#999;">{{ label }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="py-4">
+  <div class="container">
+    <div style="background:linear-gradient(135deg,var(--primary),var(--secondary));
+                border-radius:20px; padding:48px 40px; text-align:center; color:white;">
+      <h3 style="font-family:'Playfair Display',serif; margin-bottom:12px;">
+        Siap Mencoba Sistemnya?
+      </h3>
+      <p style="opacity:0.9; margin-bottom:28px;">
+        Dapatkan rekomendasi ingredient skincare yang dipersonalisasi untuk kulitmu
+      </p>
+      <a href="/kuesioner" style="background:white; color:var(--primary); border-radius:12px;
+         padding:14px 36px; font-weight:700; text-decoration:none; font-size:1rem;
+         box-shadow:0 4px 20px rgba(0,0,0,0.15); transition:all 0.3s; display:inline-block;">
+        Mulai Analisis Sekarang
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
